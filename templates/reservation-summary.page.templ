@@ -1,0 +1,56 @@
+{{template "base" .}}
+
+{{define "content"}}
+    {{$res := index .Data "reservation"}}
+    {{$roomres := index .Data "room"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-5">Reservation Summary</h1>
+
+                <hr>
+
+                <table class="table table-striped">
+                    <thead></thead>
+                    <tbody>
+                    <tr>
+                        <td>Name:</td>
+                        <td>{{$res.FirstName}} {{$res.LastName}}</td>
+                    </tr>
+                    <tr>
+                        <td>Arrival:</td>
+                        <td>{{$res.StartDate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Departure:</td>
+                        <td>{{$res.EndDate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td>{{$res.Email}}</td>
+                    </tr>
+                    <tr>
+                        <td>Phone:</td>
+                        <td>{{$res.Phone}}</td>
+                    </tr>
+                    <tr>
+                        <td>Room Number:</td>
+                        <td>{{$roomres.RoomNumber}}</td>
+                    </tr>
+                    <tr>
+                        <td>Room Type:</td>
+                        <td>{{$roomres.RoomType.Name}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <a id="triggerBtn"  class="btn btn-primary">Confirm Booking</a>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.getElementById("triggerBtn").addEventListener("click", function() {
+    window.location.href = "/confirm-booking";
+});
+    </script>
+
+{{end}}

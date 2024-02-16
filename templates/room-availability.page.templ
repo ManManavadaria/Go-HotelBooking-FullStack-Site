@@ -1,0 +1,53 @@
+{{template "base" .}}
+
+{{define "content"}}
+    {{$res := index .Data "rooms"}}
+    
+    <div class="container">
+        {{if $res}}
+            <div class="row">
+                <div class="col">
+                    <h1 class="mt-5">Available Rooms</h1>
+                    <hr>
+                    <div class="">
+                        <div class="" style="display:flex; width:100%; flex-direction:row; flex-wrap:wrap;">
+                            {{range $res}}
+                                <div class="card room-card" style="min-width:180px; height:60px; margin:20px;" data-room-number="{{.RoomNumber}}" data-room-typename="{{.RoomType.Name}}" data-room-id="{{.ID}}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{.RoomNumber}}</h5>
+                                    </div>
+                                </div>
+                            {{end}}
+                        </div>
+                    </div>
+                    <form method="post" action="/room-availability" class="" novalidate>
+                        <input class="" id="roomname" style="display:none;" autocomplete="off" type='text' name="roomname" value="a" required>
+                        <input class="" id="roomnumber" style="display:none;" autocomplete="off" type='text' name="roomnumber" value="1" required>
+                        <input class="" id="roomid" style="display:none;" autocomplete="off" type='text' name="roomid" value="a" required>
+                        <input type="submit" class="btn btn-primary" value="Confirm Room">
+                    </form>
+                </div>
+            </div>
+        {{else}}
+            <h2 class="mt-5">Sorry, we have 0 rooms available</h2>
+        {{end}}
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const roomCards = document.querySelectorAll('.room-card');
+            roomCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const roomId = this.getAttribute('data-room-id');
+                    const roomNumber = this.getAttribute('data-room-number');
+                    const roomType = this.getAttribute('data-room-typename');
+                    console.log("Clicked room number:", roomNumber);
+                    console.log("Room typename:", roomType);
+                    console.log("Room id:", roomId);
+                    document.getElementById('roomname').value = roomType;
+                    document.getElementById('roomnumber').value = roomNumber;
+                    document.getElementById('roomid').value = roomId;
+                });
+            });
+        });
+    </script>
+{{end}}

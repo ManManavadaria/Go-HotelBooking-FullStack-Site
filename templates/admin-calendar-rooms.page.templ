@@ -1,0 +1,30 @@
+{{template "admin" .}}
+
+{{define "content"}}
+    {{$res := index .Data "allrooms"}}
+    
+    <div class="container">
+        {{if $res}}
+            <div class="row">
+                <div class="col">
+                    <h1 class="mt-5">Available Rooms</h1>
+                    <hr>
+                    <div class="">
+                        <div class="" style="display:flex; width:100%; flex-direction:row; flex-wrap:wrap;">
+                            {{range $res}}
+                                <div class="card room-card" style="min-width:180px; height:60px; margin:20px;" data-room-number="{{.RoomNumber}}" data-room-typename="{{.RoomType.Name}}" data-room-id="{{.ID}}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{.RoomNumber}}</h5>
+                                    </div>
+                                </div>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{else}}
+            <h2 class="mt-5">Sorry, we have 0 rooms available</h2>
+        {{end}}
+    </div>
+    
+{{end}}
