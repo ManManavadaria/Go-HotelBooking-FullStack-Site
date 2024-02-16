@@ -16,9 +16,10 @@ import (
 	"github.com/Man-Crest/GO-Projects/01_bookings/pkg/models"
 	"github.com/Man-Crest/GO-Projects/01_bookings/pkg/render"
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 )
 
-const portNumber = ":8000"
+// const portNumber = ":8000"
 
 var app config.AppConfig
 var session *scs.SessionManager
@@ -44,9 +45,14 @@ func main() {
 	}
 
 	ReadMail()
-	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
+
+	_ = godotenv.Load(".env")
+
+	var portStr string = os.Getenv("PORT")
+
+	fmt.Println(fmt.Sprintf("Staring application on port %s", portStr))
 	srv := &http.Server{
-		Addr:    portNumber,
+		Addr:    fmt.Sprintf(":%s", portStr),
 		Handler: routes(&app),
 	}
 

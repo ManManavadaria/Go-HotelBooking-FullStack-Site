@@ -30,11 +30,20 @@ func ConnectSQL() (*DB, error) {
 		log.Fatal(err)
 	}
 
-	connectionStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", os.Getenv("HOST"), os.Getenv("PORT"), os.Getenv("DB_USER"), os.Getenv("PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("SSL_MODE"))
+	a := os.Getenv("HOST")
+	b := os.Getenv("DBPORT")
+	c := os.Getenv("DB_USER")
+	d := os.Getenv("PASSWORD")
+	e := os.Getenv("DB_NAME")
+	f := os.Getenv("SSL_MODE")
 
-	db, err := NewDatabase(connectionStr)
+	fmt.Println(a, b, c, d, e, f)
+
+	connectionStr2 := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", a, b, c, d, e, f)
+
+	db, err := NewDatabase(connectionStr2)
 	if err != nil {
-		panic(err)
+		log.Fatal(err, "db connection err")
 	}
 
 	db.SetMaxOpenConns(maxOpenDbConn)
