@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/Man-Crest/GO-Projects/01_bookings/pkg/models"
 	"gopkg.in/gomail.v2"
@@ -35,8 +36,9 @@ func SendEmail(mailData models.MailData) error {
 	m.SetHeader("Subject", mailData.Subject)
 	m.SetBody("text/html", mailData.Data)
 
+	pass := os.Getenv("MAIL_PASS")
 	// Create a new SMTP client
-	d := gomail.NewDialer("smtp.gmail.com", 587, mailData.From, "Ma@235689")
+	d := gomail.NewDialer("smtp.gmail.com", 587, mailData.From, pass)
 
 	// Send the email
 	if err := d.DialAndSend(m); err != nil {

@@ -60,7 +60,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err, "error in serving at port ")
 	}
-
 }
 
 func run() error {
@@ -70,6 +69,7 @@ func run() error {
 	gob.Register(models.User{})
 	gob.Register([]models.Rooms{})
 	gob.Register(models.Rooms{})
+	gob.Register(handlers.LoginCheck{})
 
 	infolog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	app.InfoLog = infolog

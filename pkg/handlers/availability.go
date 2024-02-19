@@ -38,6 +38,7 @@ WHERE reservations.room_id IS NULL;`, desiredStartDate, desiredEndDate)
 			return nil, err
 		}
 		room.RoomType = &models.RoomType{Name: RoomTypeName}
+
 		if room.RoomType.Name == roomType.Name {
 			rooms = append(rooms, room)
 		}

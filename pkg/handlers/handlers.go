@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -168,8 +169,9 @@ func (m *Repository) PostReservationSummary(w http.ResponseWriter, r *http.Reque
 
 	htmlMsg := fmt.Sprintf(`<h1>Congratulations , %s </h1><h2>your boking is confirmed from <b>%s</b> to <b>%s</b></h2><br><h2>Room no: %s</h2><br><h2>Room Type: %s</h2>`, reservations.FirstName, reservations.StartDate.Format("2024-01-01"), reservations.EndDate.Format("2024-01-01"), room.RoomNumber, room.RoomType.Name)
 
+	mail := os.Getenv("OWNER_MAIL")
 	mailData := models.MailData{
-		From:    "man.m@crestinfosystems.com",
+		From:    mail,
 		To:      reservations.Email,
 		Subject: "Booking Confermed",
 		Data:    htmlMsg,
@@ -337,6 +339,10 @@ func (m *Repository) SignupHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type LoginCheck struct {
+	IsLoggedIn bool
+}
+
 func (m *Repository) PostSignupHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -371,11 +377,10 @@ func (m *Repository) PostSignupHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	eq := struct {
-		IsLoggedIn bool
-	}{
+	eq := LoginCheck{
 		IsLoggedIn: true,
 	}
+
 	m.App.Session.Put(r.Context(), "eq", eq)
 	m.App.Session.Put(r.Context(), "flash", "Successfully Sign Up")
 	http.Redirect(w, r, "/login-user", http.StatusSeeOther)
