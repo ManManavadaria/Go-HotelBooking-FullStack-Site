@@ -323,8 +323,8 @@ func (m *Repository) PostLoginHandler(w http.ResponseWriter, r *http.Request) {
 			m.App.Session.Put(r.Context(), "IsLoggedIn", true)
 			m.App.Session.Put(r.Context(), "user_id", user_id)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
-			fmt.Println(storedpassword)
-			fmt.Println(user_id)
+			// fmt.Println(storedpassword)
+			// fmt.Println(user_id)
 		} else {
 			m.App.Session.Put(r.Context(), "error", "Please enter valid credentials")
 			// m.App.Session.Put(r.Context(), "IsLoggedIn", "false")

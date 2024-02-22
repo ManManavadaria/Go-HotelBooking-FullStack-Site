@@ -20,7 +20,6 @@ import (
 )
 
 // const portNumber = ":8000"
-
 var app config.AppConfig
 var session *scs.SessionManager
 
