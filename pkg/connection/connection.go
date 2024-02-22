@@ -30,14 +30,12 @@ func ConnectSQL() (*DB, error) {
 		log.Fatal(err)
 	}
 
-	a := os.Getenv("HOST")
-	b := os.Getenv("DBPORT")
-	c := os.Getenv("DB_USER")
+	// a := os.Getenv("HOST")
+	// b := os.Getenv("DBPORT")
+	// c := os.Getenv("DB_USER")
 	d := os.Getenv("PASSWORD")
 	e := os.Getenv("DB_NAME")
 	f := os.Getenv("SSL_MODE")
-
-	fmt.Println(a, b, c, d, e, f)
 
 	connectionStr2 := fmt.Sprintf("postgresql://manm49061:%s@lingering-hat-17174145.ap-southeast-1.aws.neon.tech/%s?sslmode=%s", d, e, f)
 	// connectionStr2 := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", a, b, c, d, e, f)

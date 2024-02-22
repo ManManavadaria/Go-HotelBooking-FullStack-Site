@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -191,17 +190,16 @@ func (m *Repository) AdminUpdateReservation(w http.ResponseWriter, r *http.Reque
 		log.Fatal("err parsing form", err)
 	}
 
-	updateRes := m.DB.SQL.QueryRowContext(ctx, updateQuery,
+	_ = m.DB.SQL.QueryRowContext(ctx, updateQuery,
 		r.Form.Get("firstname"),
 		r.Form.Get("lastname"),
 		r.Form.Get("email"),
 		r.Form.Get("phone"),
 		time.Now(),
 		id)
-	if err != nil {
-		log.Fatal("error executing query of update", err)
-	}
-	fmt.Println(updateRes)
+	// if err != nil {
+	// 	log.Fatal("error executing query of update", err)
+	// }
 
 	m.App.Session.Put(r.Context(), "flash", "Updated successfully")
 	http.Redirect(w, r, "/admin/reservations-all", http.StatusSeeOther)
@@ -286,11 +284,12 @@ func (m *Repository) PostAdminReservationsCalendar(w http.ResponseWriter, r *htt
 	SELECT DISTINCT rooms.id, rooms.roomnumber, roomtype.name
 FROM rooms
 JOIN roomtype ON rooms.roomtypeid = roomtype.id
-LEFT JOIN reservations ON rooms.id = reservations.room_id 
-WHERE (($1 NOT BETWEEN reservations.start_date AND reservations.end_date)
-  AND ($2 NOT BETWEEN reservations.start_date AND reservations.end_date)
-  AND NOT($1 < reservations.start_date AND $2 > reservations.end_date)
-  )`, desiredStartDate, desiredEndDate)
+LEFT JOIN reservations ON rooms.id = reservations.room_id AND (
+    $1 BETWEEN reservations.start_date AND reservations.end_date
+    OR $2 BETWEEN reservations.start_date AND reservations.end_date
+    OR ($1 <= reservations.start_date AND $2 >= reservations.end_date)
+)
+WHERE reservations.room_id IS NULL;`, desiredStartDate, desiredEndDate)
 
 	if err != nil {
 		log.Println("Error executing SQL query:", err)
