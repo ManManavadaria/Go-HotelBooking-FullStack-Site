@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/Man-Crest/GO-Projects/01_bookings/pkg/config"
@@ -40,23 +40,19 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(r, w, "home.page.templ", &models.TemplateData{})
+	render.RenderTemplate(r, w, "newhome.page.templ", &models.TemplateData{})
 }
 
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(r, w, "about.page.templ", &models.TemplateData{})
+	render.RenderTemplate(r, w, "about1.page.templ", &models.TemplateData{})
 }
 
 func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(r, w, "contact.page.templ", &models.TemplateData{})
+	render.RenderTemplate(r, w, "contact1.page.templ", &models.TemplateData{})
 }
 
-func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(r, w, "generals.page.templ", &models.TemplateData{})
-}
-
-func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(r, w, "majors.page.templ", &models.TemplateData{})
+func (m *Repository) Rooms(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(r, w, "rooms.page.templ", &models.TemplateData{})
 }
 
 func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +65,6 @@ func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error parsing form data", http.StatusInternalServerError)
 		return
 	}
-
 	availability, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
@@ -88,31 +83,35 @@ func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
 		EndDate:   availability.EndDate,
 	}
 
-	form := forms.New(r.PostForm)
-	form.Has("first_name", r)
-	form.Has("last_name", r)
-	form.Has("email", r)
-	form.Has("phone", r)
+	// form := forms.New(r.PostForm)
+	// form.Has("first_name", r)
+	// form.Has("last_name", r)
+	// form.Has("email", r)
+	// form.Has("phone", r)
 
-	if !form.Valid() {
-		data := make(map[string]interface{})
-		data["reservation"] = reservations
-		render.RenderTemplate(r, w, "make-reservation.page.templ", &models.TemplateData{
-			Form: form,
-			Data: data,
-		})
-	}
+	// if !form.Valid() {
+	// 	data := make(map[string]interface{})
+	// 	data["reservation"] = reservations
+	// 	render.RenderTemplate(r, w, "make-reservation.page.templ", &models.TemplateData{
+	// 		Form: form,
+	// 		Data: data,
+	// 	})
+	// }
 	m.App.Session.Put(r.Context(), "reservation", reservations)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
 }
 
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 
-	var emptyReservation models.Reservation
-	data := make(map[string]interface{})
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		log.Println("can't get reservation from session in Reservation")
+		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
+	}
 
-	data["reservation"] = emptyReservation
-	render.RenderTemplate(r, w, "make-reservation.page.templ", &models.TemplateData{
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+	render.RenderTemplate(r, w, "make-reservation1.page.templ", &models.TemplateData{
 		Form: forms.New(nil),
 		Data: data,
 	})
@@ -184,59 +183,84 @@ func (m *Repository) PostReservationSummary(w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func (m *Repository) SelectRooms(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(r, w, "booking1.page.templ", &models.TemplateData{})
+}
+
 func (m *Repository) SearchAvailability(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(r, w, "search-availability.page.templ", &models.TemplateData{})
 }
 
+type BookingDates struct {
+	Start string `json:"start"`
+	End   string `json:"end"`
+}
+
 func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	// err := r.ParseForm()
+	// s := r.Form.Get("start")
+	// e := r.Form.Get("end")
+
+	var bookingDate BookingDates
+
+	err := json.NewDecoder(r.Body).Decode(&bookingDate)
 	if err != nil {
 		http.Error(w, "Error parsing form data", http.StatusInternalServerError)
 		return
 	}
-	s := r.Form.Get("start")
-	e := r.Form.Get("end")
-	room_type := r.Form.Get("roomType")
+
+	fmt.Println(bookingDate)
+
+	// room_type := r.Form.Get("roomType")
 
 	// roomType, err := strconv.Atoi(room_type)
 
-	if err != nil {
-		// Handle parsing error
-		http.Error(w, "Error parsing room type", http.StatusInternalServerError)
-		return
-	}
+	// if err != nil {
+	// 	// Handle parsing error
+	// 	http.Error(w, "Error parsing room type", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	startDate, err := time.Parse("2006-01-02", s)
+	startDate, err := time.Parse("2006-01-02", bookingDate.Start)
 
 	if err != nil {
 		// Handle parsing error
 		http.Error(w, "Error parsing start date", http.StatusInternalServerError)
 		return
 	}
-	endDate, err := time.Parse("2006-01-02", e)
+	endDate, err := time.Parse("2006-01-02", bookingDate.End)
 	if err != nil {
 		// Handle parsing error
 		http.Error(w, "Error parsing end date", http.StatusInternalServerError)
 		return
 	}
 
-	roomType := &models.RoomType{
-		Name: room_type,
-	}
-	rooms, err := m.Availability(roomType, startDate, endDate)
-
+	// roomType := &models.RoomType{
+	// 	Name: room_type,
+	// }
+	rooms, err := m.Availability(startDate, endDate)
 	if err != nil {
 		log.Fatal(err, ": error auccerd in availability handler")
 	}
 
-	reservations := &models.Reservation{
+	reservations := models.Reservation{
 		StartDate: startDate,
 		EndDate:   endDate,
 	}
+	fmt.Println(startDate)
+	fmt.Println(endDate)
+	fmt.Println(reservations.StartDate)
+	fmt.Println(reservations.EndDate)
 
 	m.App.Session.Put(r.Context(), "reservation", reservations)
 	m.App.Session.Put(r.Context(), "rooms", rooms)
-	http.Redirect(w, r, "/room-availability", http.StatusSeeOther)
+	// http.Redirect(w, r, "/room-availability", http.StatusSeeOther)
+
+	err = json.NewEncoder(w).Encode(rooms)
+	if err != nil {
+		http.Error(w, "Error writing form data", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (m *Repository) RoomAvailability(w http.ResponseWriter, r *http.Request) {
@@ -260,27 +284,24 @@ func (m *Repository) RoomAvailability(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) PostRoomAvailability(w http.ResponseWriter, r *http.Request) {
 
-	err := r.ParseForm()
+	// err := r.ParseForm()
 
+	// ID := r.Form.Get("roomid")
+	// id, _ := strconv.Atoi(ID)
+	room := &models.Rooms{
+		RoomType: &models.RoomType{},
+	}
+	err := json.NewDecoder(r.Body).Decode(&room)
 	if err != nil {
 		log.Fatal(err, "not getting data from room availability form")
 	}
-
-	ID := r.Form.Get("roomid")
-	id, _ := strconv.Atoi(ID)
-	room := models.Rooms{
-		ID:         id,
-		RoomNumber: r.Form.Get("roomnumber"),
-		RoomType: &models.RoomType{
-			Name: r.Form.Get("roomname"),
-		},
-	}
+	fmt.Println(room)
+	fmt.Println(room.RoomType)
 	m.App.Session.Put(r.Context(), "room", room)
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
 
 func (m *Repository) LoginHandler(w http.ResponseWriter, r *http.Request) {
-
 	render.RenderTemplate(r, w, "authentication.page.templ", &models.TemplateData{
 		Form: forms.New(nil),
 	})

@@ -47,7 +47,19 @@
                                autocomplete="off" type='email'
                                name='phone' value="" required>
                     </div>
-
+                    {{$res := index .Data "reservation"}}
+                    <div class="form-group">              
+                        <input class="form-control" id="start"
+                               autocomplete="off" type='text'
+                               name='start' value={{$res.StartDate}} required>
+                    </div>
+                    <div class="form-group">
+                                            
+                        <input class="form-control" id="end"
+                               autocomplete="off" type='text'
+                               name='end' value={{$res.EndDate}} required>
+                    </div>
+                    
                     <hr>
                     <input type="submit" class="btn btn-primary" value="Make Reservation">
                 </form>

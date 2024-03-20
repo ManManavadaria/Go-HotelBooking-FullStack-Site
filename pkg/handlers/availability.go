@@ -7,7 +7,7 @@ import (
 	"github.com/Man-Crest/GO-Projects/01_bookings/pkg/models"
 )
 
-func (m *Repository) Availability(roomType *models.RoomType, desiredStartDate time.Time, desiredEndDate time.Time) ([]models.Rooms, error) {
+func (m *Repository) Availability(desiredStartDate time.Time, desiredEndDate time.Time) ([]models.Rooms, error) {
 
 	rows, err := m.DB.SQL.Query(`
 	SELECT DISTINCT rooms.id, rooms.roomnumber, roomtype.name
@@ -39,9 +39,9 @@ WHERE reservations.room_id IS NULL;`, desiredStartDate, desiredEndDate)
 		}
 		room.RoomType = &models.RoomType{Name: RoomTypeName}
 
-		if room.RoomType.Name == roomType.Name {
-			rooms = append(rooms, room)
-		}
+		// if room.RoomType.Name == roomType.Name {
+		rooms = append(rooms, room)
+		// }
 	}
 	if err := rows.Err(); err != nil {
 		log.Println("Error iterating through rows:", err)
