@@ -42,7 +42,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err, "at run function")
 	}
-
 	ReadMail()
 
 	_ = godotenv.Load(".env")
