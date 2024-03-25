@@ -33,7 +33,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Post("/room-availability", handlers.Repo.PostRoomAvailability)
 	mux.Get("/login-user", handlers.Repo.LoginHandler)
 	mux.Post("/login-user", handlers.Repo.PostLoginHandler)
-	mux.Get("/signup-user", handlers.Repo.SignupHandler)
+	// mux.Get("/signup-user", handlers.Repo.SignupHandler)
 	mux.Post("/signup-user", handlers.Repo.PostSignupHandler)
 	mux.Get("/user/logout", handlers.Repo.Logout)
 	// mux.Post("/update-user", handlers.Repo.UpdateUserHandler)
@@ -44,6 +44,7 @@ func routes(app *config.AppConfig) http.Handler {
 
 	mux.Route("/admin", func(mux chi.Router) {
 		mux.Use(Auth)
+		mux.Use(AdminAuth)
 		mux.Get("/dashboard", handlers.Repo.AdminDashboard)
 		mux.Get("/reservations-all", handlers.Repo.AdminAllReservations)
 		mux.Get("/reservations-new", handlers.Repo.AdminDashboard)
@@ -53,6 +54,10 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Post("/reservations/update/{id}", handlers.Repo.AdminUpdateReservation)
 		mux.Get("/reservation-calendar", handlers.Repo.AdminReservationsCalendar)
 		mux.Post("/admin-avaibility-check", handlers.Repo.PostAdminReservationsCalendar)
+		mux.Get("/all-users", handlers.Repo.AdminGetAllUsers)
+		mux.Get("/user/{id}", handlers.Repo.AdminGetUserById)
+		mux.Post("/user/update/{id}", handlers.Repo.AdminUpdateUserById)
+		mux.Post("/user/delete/{id}", handlers.Repo.AdminDeleteUserById)
 	})
 
 	return mux

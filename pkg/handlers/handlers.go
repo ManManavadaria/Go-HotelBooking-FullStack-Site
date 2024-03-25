@@ -302,7 +302,7 @@ func (m *Repository) PostRoomAvailability(w http.ResponseWriter, r *http.Request
 }
 
 func (m *Repository) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(r, w, "authentication.page.templ", &models.TemplateData{
+	render.RenderTemplate(r, w, "login1.page.templ", &models.TemplateData{
 		Form: forms.New(nil),
 	})
 }
@@ -318,47 +318,52 @@ func (m *Repository) PostLoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal("error parsing form in sign in handler", err)
 	}
-	email := r.Form.Get("email")
-	password := r.Form.Get("password")
+	email := r.Form.Get("email_login")
+	password := r.Form.Get("password_login")
 
 	form := forms.New(r.PostForm)
-	form.Has("email", r)
-	form.Has("password", r)
+	form.Has("email_login", r)
+	form.Has("password_login", r)
 
 	if !form.Valid() {
-		render.RenderTemplate(r, w, "authentication.page.templ", &models.TemplateData{
+		render.RenderTemplate(r, w, "login1.page.templ", &models.TemplateData{
 			Form: form,
 		})
 	} else {
 		var storedpassword string
 		var user_id int
-		err = m.DB.SQL.QueryRow("SELECT password,ID FROM users WHERE email = $1", email).Scan(&storedpassword, &user_id)
+		var is_admin int
+		err = m.DB.SQL.QueryRow("SELECT password,ID,accesslevel FROM users WHERE email = $1", email).Scan(&storedpassword, &user_id, &is_admin)
 		if err != nil {
 			log.Fatal("err in sign in query :", err)
 			if err == sql.ErrNoRows {
 				http.Redirect(w, r, "/login-user", http.StatusSeeOther)
 			}
 		}
+
 		if password == storedpassword {
 			m.App.Session.Put(r.Context(), "flash", "Successfully logged in")
 			m.App.Session.Put(r.Context(), "IsLoggedIn", true)
 			m.App.Session.Put(r.Context(), "user_id", user_id)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			// fmt.Println(storedpassword)
-			// fmt.Println(user_id)
+			if is_admin == 1 {
+				fmt.Println("inside admin condition")
+				m.App.Session.Put(r.Context(), "is_admin", true)
+			}
 		} else {
 			m.App.Session.Put(r.Context(), "error", "Please enter valid credentials")
 			// m.App.Session.Put(r.Context(), "IsLoggedIn", "false")
 			http.Redirect(w, r, "/login-user", http.StatusSeeOther)
 		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+
 	}
 }
 
-func (m *Repository) SignupHandler(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(r, w, "signup.page.templ", &models.TemplateData{
-		Form: forms.New(nil),
-	})
-}
+// func (m *Repository) SignupHandler(w http.ResponseWriter, r *http.Request) {
+// 	render.RenderTemplate(r, w, "signup.page.templ", &models.TemplateData{
+// 		Form: forms.New(nil),
+// 	})
+// }
 
 type LoginCheck struct {
 	IsLoggedIn bool
@@ -373,18 +378,18 @@ func (m *Repository) PostSignupHandler(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
-		Password:  r.Form.Get("password"),
-		Email:     r.Form.Get("email"),
+		Password:  r.Form.Get("password_signup"),
+		Email:     r.Form.Get("email_signup"),
 	}
 
 	form := forms.New(r.PostForm)
 	form.Has("first_name", r)
 	form.Has("last_name", r)
-	form.Has("email", r)
-	form.Has("password", r)
+	form.Has("email_signup", r)
+	form.Has("password_signup", r)
 
 	if !form.Valid() {
-		render.RenderTemplate(r, w, "signup.page.templ", &models.TemplateData{
+		render.RenderTemplate(r, w, "login1.page.templ", &models.TemplateData{
 			Form: form,
 		})
 	}

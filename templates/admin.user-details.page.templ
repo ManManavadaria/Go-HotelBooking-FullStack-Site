@@ -1,0 +1,37 @@
+{{template "admin" .}}
+
+{{define "content"}}
+    {{$res := index .Data "user-detail"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-5">Detailed Summary</h1>
+                <hr>
+                <form method="post" novalidate>
+                    <div class="form-group">
+                        <label for="firstname">First Name:</label>
+                        <input type="text" class="form-control" id="firstname" name="firstname" value="{{ $res.FirstName }}"  >
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname">Last Name:</label>
+                        <input type="text" class="form-control" id="lastname" name="lastname" value="{{ $res.LastName }}"  >
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ $res.Email }}"  >
+                    </div>
+                    <div class="form-group">
+                        <label for="Password">Password:</label>
+                        <input type="text" class="form-control" id="password" name="password" value="{{ $res.Password }}"  >
+                    </div>
+                    <div class="form-group">
+                        <label for="accesslevel">AccessLevel:</label>
+                        <input type="text" class="form-control" id="accesslevel" name="accesslevel" value="{{ $res.AccessLevel }}"  >
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Update Detail" formaction="/admin/user/update/{{$res.ID}}"/>
+                    <input type="submit" class="btn btn-primary" value="Delete user" formaction="/admin/user/delete/{{$res.ID}}"/>
+                </form>
+            </div>
+        </div>
+    </div>
+{{end}}
