@@ -209,8 +209,6 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(bookingDate)
-
 	// room_type := r.Form.Get("roomType")
 
 	// roomType, err := strconv.Atoi(room_type)
@@ -247,10 +245,6 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 		StartDate: startDate,
 		EndDate:   endDate,
 	}
-	fmt.Println(startDate)
-	fmt.Println(endDate)
-	fmt.Println(reservations.StartDate)
-	fmt.Println(reservations.EndDate)
 
 	m.App.Session.Put(r.Context(), "reservation", reservations)
 	m.App.Session.Put(r.Context(), "rooms", rooms)
@@ -295,8 +289,6 @@ func (m *Repository) PostRoomAvailability(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		log.Fatal(err, "not getting data from room availability form")
 	}
-	fmt.Println(room)
-	fmt.Println(room.RoomType)
 	m.App.Session.Put(r.Context(), "room", room)
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
@@ -346,7 +338,6 @@ func (m *Repository) PostLoginHandler(w http.ResponseWriter, r *http.Request) {
 			m.App.Session.Put(r.Context(), "IsLoggedIn", true)
 			m.App.Session.Put(r.Context(), "user_id", user_id)
 			if is_admin == 1 {
-				fmt.Println("inside admin condition")
 				m.App.Session.Put(r.Context(), "is_admin", true)
 			}
 		} else {
