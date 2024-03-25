@@ -36,3 +36,14 @@ func Auth(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+func AdminAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		a := helpers.IsAdmin(r)
+		if a != true {
+			session.Put(r.Context(), "error", "Please login first")
+			http.Redirect(w, r, "/login-user", http.StatusSeeOther)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}

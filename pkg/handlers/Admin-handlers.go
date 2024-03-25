@@ -327,3 +327,166 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		Form: forms.New(nil),
 	})
 }
+func (m *Repository) AdminGetAllUsers(w http.ResponseWriter, r *http.Request) {
+	ctx, cancle := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancle()
+
+	var users []models.User
+
+	query := `SELECT
+    r.id,
+    r.firstname,
+    r.lastname,
+    r.email,
+	r.accesslevel,
+    r.password,
+	r.createdat,
+	r.updatedat
+	FROM  
+	users r;
+`
+	rows, err := m.DB.SQL.QueryContext(ctx, query)
+	defer rows.Close()
+
+	if err != nil {
+		log.Fatal(err, "error retriving all reservations from DB")
+	}
+
+	for rows.Next() {
+		i := models.User{}
+		err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Email,
+			&i.AccessLevel,
+			&i.Password,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		)
+
+		if err != nil {
+			log.Fatal(err, "error scanning rows of all rservations")
+		}
+		users = append(users, i)
+	}
+	if err := rows.Err(); err != nil {
+		log.Println("Error iterating through rows:", err)
+	}
+
+	data := make(map[string]interface{})
+	data["users"] = users
+
+	render.RenderTemplate(r, w, "admin.all-users.page.templ", &models.TemplateData{
+		Data: data,
+	})
+}
+
+func (m *Repository) AdminGetUserById(w http.ResponseWriter, r *http.Request) {
+	ctx, cancle := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancle()
+	query := `SELECT
+    r.id,
+    r.firstname,
+    r.lastname,
+    r.email,
+    r.password,
+    r.accesslevel,
+	r.createdat,
+    r.updatedat
+FROM
+    users r
+WHERE r.id = $1	
+;
+`
+	uri := strings.Split(r.RequestURI, "/")
+
+	id, err := strconv.Atoi(uri[3])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rows := m.DB.SQL.QueryRowContext(ctx, query, id)
+
+	// if err != nil {
+	// 	log.Fatal(err, "error retriving all reservations from DB")
+	// }
+
+	var i = &models.User{}
+
+	err = rows.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Password,
+		&i.AccessLevel,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	if err != nil {
+		log.Fatal(err, "error scanning rows of all rservations")
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Error iterating through rows:", err)
+	}
+
+	data := make(map[string]interface{})
+	data["user-detail"] = i
+
+	render.RenderTemplate(r, w, "admin.user-details.page.templ", &models.TemplateData{
+		Data: data,
+	})
+}
+
+func (m *Repository) AdminUpdateUserById(w http.ResponseWriter, r *http.Request) {
+	ctx, cancle := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancle()
+	uri := strings.Split(r.RequestURI, "/")
+
+	id, err := strconv.Atoi(uri[4])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	updateQuery := `update users set firstname = $1, lastname = $2, email = $3, password = $4, accesslevel = $5, updatedat = $6
+	where id = $7`
+
+	err = r.ParseForm()
+	if err != nil {
+		log.Fatal("err parsing form", err)
+	}
+
+	_ = m.DB.SQL.QueryRowContext(ctx, updateQuery,
+		r.Form.Get("firstname"),
+		r.Form.Get("lastname"),
+		r.Form.Get("email"),
+		r.Form.Get("password"),
+		r.Form.Get("accesslevel"),
+		time.Now(),
+		id)
+
+	http.Redirect(w, r, "/admin/all-users", http.StatusSeeOther)
+
+}
+func (m *Repository) AdminDeleteUserById(w http.ResponseWriter, r *http.Request) {
+	ctx, cancle := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancle()
+	uri := strings.Split(r.RequestURI, "/")
+
+	id, err := strconv.Atoi(uri[4])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	updateQuery := `DELETE FROM users where id = $1`
+
+	err = r.ParseForm()
+	if err != nil {
+		log.Fatal("err parsing form", err)
+	}
+	_ = m.DB.SQL.QueryRowContext(ctx, updateQuery, id)
+
+	http.Redirect(w, r, "/admin/all-users", http.StatusSeeOther)
+}
