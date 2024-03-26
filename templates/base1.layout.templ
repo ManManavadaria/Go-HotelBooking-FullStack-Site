@@ -61,12 +61,11 @@
                         </button>
                         <div class="collapse navbar-collapse justify-content-end" id="navbarCollapse">
                             <div class="navbar-nav mr-auto py-0">
-                                <a href="/" class="nav-item nav-link active">Home</a>
-                                <a href="/about" class="nav-item nav-link">About</a>
+                                <a href="/" class="nav-item nav-link ">Home</a>
+                                <a href="/about" class="nav-item nav-link ">About</a>
                                 <a href="/rooms" class="nav-item nav-link">Rooms</a>
                                 <a href="/contact" class="nav-item nav-link">Contact</a>
                                 <a href="/login-user" class="nav-item nav-link">Login</a>
-                                
                             </div>
                         </div>
                     </nav>
@@ -137,6 +136,14 @@
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
+    <script>
+        $(document).ready(function(){
+            var url = window.location.pathname;
+            // Add active class to navbar link based on current URL
+            $('.nav-item.nav-link').removeClass('active');
+            $('.nav-item.nav-link[href="'+url+'"]').addClass('active');
+        });
+    </script>
     <script src="static/js/main.js"></script>
     </body>
     </html>
